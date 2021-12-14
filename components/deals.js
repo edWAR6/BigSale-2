@@ -2,7 +2,7 @@ import { FlatList, StyleSheet, Text, View } from 'react-native';
 import React from 'react';
 import Deal from './deal';
 
-export default Deals = ({ deals }) => {
+export default Deals = ({ deals, onItemPress }) => {
   return (
     <View style={styles.list}>
       {/* {deals.map(deal => 
@@ -10,7 +10,7 @@ export default Deals = ({ deals }) => {
       )} */}
       <FlatList data={deals} renderItem={({ item }) => (
         // <Text>{item.title}</Text>
-        <Deal deal={item} />
+        <Deal deal={item} onPress={onItemPress} />
       )}/>
     </View>
   );

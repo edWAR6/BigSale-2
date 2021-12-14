@@ -1,15 +1,21 @@
-import React from 'react';
-import { Image, StyleSheet, View, Text, TouchableOpacity } from 'react-native'
+import React, { useEffect, useState } from 'react';
+import { Image, StyleSheet, View, Text } from 'react-native'
 import { formatPrice } from '../utils';
+import api from '../api/dealsService';
 
-export default Deal = ({ deal, onPress }) => {
+export default Detail = ({ deal }) => {
+  const [dealDetail, setDealDetail] = useState(deal);
 
-  const handlePress = () => {
-    onPress(deal.key);
-  };
+  useEffect(() => {
+    (async () => {
+      const dealDetail = await api.fetchDealDetail(deal.key);
+      setDealDetail(dealDetail);
+      console.log(dealDetail.user.avatar);
+    })();
+  }, []);
 
   return (
-    <TouchableOpacity style={styles.deal} onPress={handlePress}>
+    <View style={styles.deal}>
       <Image style={styles.image} source={{ uri: Object.values(deal.media)[0] }} />
       <View style={styles.info}>
         <Text style={styles.title}>{deal.title}</Text>
@@ -18,7 +24,7 @@ export default Deal = ({ deal, onPress }) => {
           <Text style={styles.cause}>{deal.cause.name}</Text>
         </View>
       </View>
-    </TouchableOpacity>
+    </View>
   );
 }
 
