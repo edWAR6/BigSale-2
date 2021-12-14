@@ -1,11 +1,26 @@
-import { StyleSheet, Text, View } from 'react-native';
-
+import { FlatList, StyleSheet, Text, View } from 'react-native';
 import React from 'react';
+import Deal from './deal';
 
-export default Deals = () => {
+export default Deals = ({ deals }) => {
   return (
-    <View>
-      <Text>Deals...</Text>
+    <View style={styles.list}>
+      {/* {deals.map(deal => 
+        <Text key={deal.key}>{deal.title}</Text>
+      )} */}
+      <FlatList data={deals} renderItem={({ item }) => (
+        // <Text>{item.title}</Text>
+        <Deal deal={item} />
+      )}/>
     </View>
   );
 };
+
+const styles = StyleSheet.create({
+  list: {
+    backgroundColor: '#eee',
+    flex: 1,
+    width: '100%',
+    paddingTop: 50,
+  }
+});

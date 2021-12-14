@@ -20,7 +20,7 @@ export default function App() {
       <Text>{deals.length}</Text>
       {
         deals.length > 0 ? (
-          <Deals  />
+          <Deals deals={deals} />
         ) : (
           <Text style={styles.header}>BigSale app!</Text>
         )
