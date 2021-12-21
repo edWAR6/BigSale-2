@@ -14,9 +14,9 @@ export default function App() {
   useEffect(() => {
     (async () => {
       animateTitle();
-      // const deals = await api.fetchInitialDeals();
+      const deals = await api.fetchInitialDeals();
       // console.info(deals);
-      // setDeals(deals);
+      setDeals(deals);
     })();
   }, []);
 
@@ -25,20 +25,27 @@ export default function App() {
   const unsetCurrentDealId = () => setCurrentDealId(null);
 
   const animateTitle = (direction = 1) => {
+    // console.log('animating');
     const width = (Dimensions.get('window').width - 200) / 2;
     Animated.timing(titleXPos, {
       toValue: direction * width,
       duration: 1000,
       easing: Easing.linear,
       useNativeDriver: false,
-    }).start(() => animateTitle(direction * -1));
+    }).start(({ finished }) => {
+      if (finished) {
+        animateTitle(direction * -1);
+      }
+    });
   };
 
   return (
     <>
       {
         currentDealId ? (
-          <Detail deal={getCurrentDeal()} onBack={unsetCurrentDealId} />
+          <View style={styles.main}>
+            <Detail deal={getCurrentDeal()} onBack={unsetCurrentDealId} />
+          </View>
         ) : deals.length > 0 ? (
           <Deals deals={deals} onItemPress={setCurrentDealId} />
         ) : (
@@ -53,6 +60,9 @@ export default function App() {
 }
 
 const styles = StyleSheet.create({
+  main: {
+    marginTop: 50,
+  },
   container: {
     flex: 1,
     backgroundColor: '#fff',

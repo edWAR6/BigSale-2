@@ -1,10 +1,13 @@
-import React, { useEffect, useState } from 'react';
-import { Image, StyleSheet, View, Text, TouchableOpacity } from 'react-native'
+import React, { useEffect, useRef, useState } from 'react';
+import { Image, StyleSheet, View, Text, TouchableOpacity, PanResponder, Animated, Dimensions } from 'react-native'
 import { formatPrice } from '../utils';
 import api from '../api/dealsService';
 
 export default Detail = ({ deal, onBack }) => {
   const [dealDetail, setDealDetail] = useState(deal);
+  const [imageIndex, setImageIndex] = useState(0)
+  const imageXPos = useRef(new Animated.Value(0)).current;
+  const width = Dimensions.get('window').width;
 
   useEffect(() => {
     (async () => {
@@ -14,12 +17,57 @@ export default Detail = ({ deal, onBack }) => {
     })();
   }, []);
 
+  useEffect(() => {
+    Animated.spring(imageXPos, {
+      toValue: 0,
+      useNativeDriver: false,
+    }).start();
+  }, [imageIndex]);
+
+  const panResponder = PanResponder.create({
+    onStartShouldSetPanResponder: () => true,
+    onPanResponderMove: (e, state) => imageXPos.setValue(state.dx),
+    onPanResponderRelease: (e, state) => {
+      if (Math.abs(state.dx) > width * 0.4) {
+        const direction = Math.sign(state.dx);
+        Animated.timing(imageXPos, {
+          toValue: direction * width,
+          duration: 250,
+          useNativeDriver: false,
+        }).start(() => {
+          console.log('imageIndex', imageIndex);
+          console.log('direction', direction);
+          console.log('next', imageIndex + direction * -1);
+          console.log('image', Object.values(dealDetail.media)[imageIndex + direction * -1]);
+          if (Object.values(dealDetail.media)[imageIndex + direction * -1]) {
+            setImageIndex(() => imageIndex + direction * -1);
+            imageXPos.setValue(width * direction * -1);
+          } else {
+            Animated.spring(imageXPos, {
+              toValue: 0,
+              useNativeDriver: false,
+            }).start();
+          }
+        });
+      } else {
+        Animated.spring(imageXPos, {
+          toValue: 0,
+          useNativeDriver: false,
+        }).start();
+      }
+    },
+  });
+
   return (
     <View style={styles.deal}>
       <TouchableOpacity onPress={onBack}>
         <Text style={styles.back}>Back</Text>
       </TouchableOpacity>
-      <Image style={styles.image} source={{ uri: Object.values(dealDetail.media)[0] }} />
+      <Animated.Image
+        style={[{ left: imageXPos }, styles.image]}
+        source={{ uri: Object.values(dealDetail.media)[imageIndex] }}
+        {...panResponder.panHandlers}
+      />
       <View style={styles.detail}>
         <View>
           <Text style={styles.title}>{dealDetail.title}</Text>
